@@ -51,11 +51,12 @@ with st.sidebar:
 
 # Adicionar nova tarefa
 new_task = st.text_input("Nova tarefa")
+importance = st.toggle("Importante")
 col1, col2 = st.columns([0.85, 0.20])
 with col1:
     if st.button("Adicionar Tarefa"):
         if new_task.strip() != "":
-            session.add(ToDoItem(content=new_task, list_id=current_list.id, date=date))
+            session.add(ToDoItem(content=new_task, list_id=current_list.id, date=date, important=importance))
             session.commit()
             st.rerun()
 with col2:
@@ -76,8 +77,10 @@ for item in items:
         if checkbox_key not in st.session_state:
             st.session_state[checkbox_key] = item.completed
 
+        item_label = f"{item.content}    {'❗' if item.important else ''}"
+
         # Renderiza o checkbox com o valor do estado
-        new_value = st.checkbox(label=item.content, key=checkbox_key)
+        new_value = st.checkbox(label=item_label , key=checkbox_key)
 
         # Se mudou o valor, atualiza o banco e o 
         if new_value != item.completed:

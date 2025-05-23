@@ -16,6 +16,7 @@ class ToDoItem(Base):
     date = Column(Date)
     completed = Column(Boolean, default=False)
     list_id = Column(Integer, ForeignKey('todo_lists.id'), nullable=False)
+    important = Column(Boolean, default=False)
 
 
 # Conexão com SQLite
