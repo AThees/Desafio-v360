@@ -2,7 +2,6 @@ import streamlit as st
 from sqlalchemy import func 
 from models import Session, ToDoList, ToDoItem
 
-
 session = Session()
 st.set_page_config(page_title="ToDo App", layout="centered")
 
@@ -32,8 +31,6 @@ list_titles = [l.title for l in lists]
 if not list_titles:
     st.warning("Nenhuma lista criada ainda.")
     st.stop()
-
-# current_list = session.query(ToDoList).filter_by(title=selected).first()
 
 with st.sidebar:
     st.header("Listas Criadas")
@@ -67,14 +64,24 @@ with col2:
         session.commit()
         st.rerun()
 
-# Mostrar itens da lista
-st.subheader(f"Tarefas de: {current_list.title} para o dia {date.strftime("%d/%m/%Y")}")
+# Exibir itens da lista
+st.subheader(f"Tarefas de {current_list.title} para o dia {date.strftime("%d/%m/%Y")}")
 items = session.query(ToDoItem).filter(ToDoItem.list_id == current_list.id, func.date(ToDoItem.date) == date).all()
 for item in items:
     col1, col2 = st.columns([0.85, 0.15])
     with col1:
-        if st.checkbox(item.content, value=item.completed, key=item.id):
-            item.completed = not item.completed
+        checkbox_key = f"cb_{item.id}"
+        
+        # Cria um estado de sessão para o checkbox
+        if checkbox_key not in st.session_state:
+            st.session_state[checkbox_key] = item.completed
+
+        # Renderiza o checkbox com o valor do estado
+        new_value = st.checkbox(label=item.content, key=checkbox_key)
+
+        # Se mudou o valor, atualiza o banco e o 
+        if new_value != item.completed:
+            item.completed = new_value
             session.commit()
 
     with col2:
@@ -82,5 +89,6 @@ for item in items:
             session.delete(item)
             session.commit()
             st.rerun()
+
 
 
